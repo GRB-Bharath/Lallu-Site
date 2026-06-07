@@ -742,8 +742,76 @@
             bottom: 20px;
             left: 20px;
             z-index: 9999;
-            display: flex;
+            display: none; /* Hidden until entry */
             gap: 10px;
+        }
+
+        /* Entry Overlay */
+        #entryOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 100000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            transition: opacity 1s ease;
+            overflow: hidden;
+        }
+
+        #entryOverlay .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 1;
+            filter: brightness(0.6);
+        }
+
+        .entry-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .entry-content h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-enter {
+            background: #fff;
+            color: #ff4d8d;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-family: 'Dancing Script', cursive;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: 0.4s;
+            animation: pulseSimple 2s infinite;
+        }
+
+        @keyframes pulseSimple {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.1);
+            background: #ffe6f0;
         }
 
         .music-btn {
@@ -826,6 +894,17 @@
 
     <canvas id="confetti" class="confetti"></canvas>
     <div class="hearts-container" id="hearts"></div>
+
+    <!-- Entry Interaction (Required for Instant Music) -->
+    <div id="entryOverlay">
+        <video class="video-bg" autoplay muted loop playsinline>
+            <source src="vecteezy_valentine-s-day-background-with-red-and-gold-balloons_55010830.mp4" type="video/mp4">
+        </video>
+        <div class="entry-content">
+            <h1>Ready for your surprise? ❤️</h1>
+            <button class="btn-enter" onclick="startTheMagic()">Enter the Magic ✨</button>
+        </div>
+    </div>
 
     <div id="successOverlay" class="success-overlay">
         <div class="success-content">
@@ -977,44 +1056,31 @@
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
+<script>
         // Global Audio Handler
-        const startAudio = () => {
+        function startTheMagic() {
             const bgMusic = document.getElementById('bgMusic');
+            const overlay = document.getElementById('entryOverlay');
+            const controls = document.querySelector('.music-controls');
+            
+            // Play Audio
             bgMusic.play().then(() => {
                 document.getElementById('playPauseBtn').innerHTML = '<span>⏸</span>';
-                // Remove listeners once audio starts successfully
-                document.removeEventListener('click', startAudio);
-                document.removeEventListener('touchstart', startAudio);
-            }).catch(e => console.log("Still waiting for interaction..."));
-        };
+            }).catch(e => console.log("Audio failed to play"));
 
-        // Add listeners for any user interaction to bypass browser blocks
-        document.addEventListener('click', startAudio);
-        document.addEventListener('touchstart', startAudio);
+            // Hide Overlay
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                controls.style.display = 'flex';
+                startCountdownOnEntry(); // Start the 15s timer after she enters
+            }, 1000);
+        }
 
         // Start audio and countdown on page load
-        window.addEventListener('load', () => {
-            const bgMusic = document.getElementById('bgMusic');
+        function startCountdownOnEntry() {
             const btn = document.getElementById('mainButton');
             let timeLeft = 15;
-
-            // Immediate attempt
-            startAudio();
-
-            // Attempt to play audio periodically 
-            const playAttempt = setInterval(() => {
-                if (!bgMusic.paused) {
-                    clearInterval(playAttempt);
-                    return;
-                }
-                bgMusic.play().then(() => {
-                    clearInterval(playAttempt);
-                    document.getElementById('playPauseBtn').innerHTML = '<span>⏸</span>';
-                }).catch(e => {
-                    // Fail silently, listeners will handle it
-                });
-            }, 1000);
 
             // Countdown Logic
             const timer = setInterval(() => {
@@ -1029,7 +1095,7 @@
                     btn.style.cursor = "pointer";
                 }
             }, 1000);
-        });
+        }
 
         // Floating Hearts
         function createHeart() {
