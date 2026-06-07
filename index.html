@@ -1017,7 +1017,7 @@
 
     <!-- COUNTDOWN BRIDGE -->
     <section id="countdownPage" class="page">
-        <video id="countdownVideo" class="countdown-video" playsinline>
+        <video id="countdownVideo" class="countdown-video" playsinline preload="auto">
             <source src="Countdown_timer_with_text_202605241821.mp4" type="video/mp4">
         </video>
     </section>
@@ -1063,7 +1063,11 @@
             const bgMusic = document.getElementById('bgMusic');
             const overlay = document.getElementById('entryOverlay');
             const controls = document.querySelector('.music-controls');
+            const countdownVid = document.getElementById('countdownVideo');
             
+            // Pre-load the countdown video as soon as they enter
+            countdownVid.load();
+
             // Play Audio
             bgMusic.play().then(() => {
                 document.getElementById('playPauseBtn').innerHTML = '<span>⏸</span>';
