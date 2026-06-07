@@ -774,12 +774,41 @@
             z-index: 1;
             opacity: 1;
             filter: brightness(0.6);
-            background: transparent;
+            background: #ff75a0;
         }
 
         .entry-content {
             position: relative;
             z-index: 10;
+        }
+
+        .loader-info {
+            margin-bottom: 30px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar-container {
+            width: 250px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+            transition: width 0.4s ease;
         }
 
         .entry-content h1 {
@@ -801,6 +830,9 @@
             cursor: pointer;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             transition: 0.4s;
+        }
+
+        .btn-enter:not(:disabled) {
             animation: pulseSimple 2s infinite;
         }
 
@@ -810,9 +842,16 @@
             100% { transform: scale(1); }
         }
 
-        .btn-enter:hover {
+        .btn-enter:not(:disabled):hover {
             transform: scale(1.1);
             background: #ffe6f0;
+        }
+
+        .btn-enter:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #eee;
+            color: #999;
         }
 
         .music-btn {
@@ -903,7 +942,13 @@
         </video>
         <div class="entry-content">
             <h1>Ready for your surprise? ❤️</h1>
-            <button class="btn-enter" onclick="startTheMagic()">Enter the Magic ✨</button>
+            <div class="loader-info" id="loaderInfo">
+                <p class="loading-text" id="loadingText">Preparing the magic... 0%</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="loadingBar"></div>
+                </div>
+            </div>
+            <button class="btn-enter" id="enterBtn" onclick="startTheMagic()" disabled>Wait for Magic... ✨</button>
         </div>
     </div>
 
@@ -1058,6 +1103,69 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
+        // Asset Preloader logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const assets = [
+                '1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '7.jpeg', '8.jpeg', '9.jpeg',
+                'vecteezy_valentine-s-day-background-with-red-and-gold-balloons_55010830.mp4',
+                'vecteezy_balloons-and-colorful-confetti-on-pink-background-pink_36877794.mp4',
+                '6.mp4',
+                'Countdown_timer_with_text_202605241821.mp4',
+                'Prashi birthday love.mp4'
+            ];
+            
+            let loadedCount = 0;
+            const totalAssets = assets.length;
+            const enterBtn = document.getElementById('enterBtn');
+            const loadingText = document.getElementById('loadingText');
+            const loadingBar = document.getElementById('loadingBar');
+            const loaderInfo = document.getElementById('loaderInfo');
+
+            function updateProgress() {
+                loadedCount++;
+                const progress = Math.min(Math.round((loadedCount / totalAssets) * 100), 100);
+                loadingText.innerText = `Preparing the magic... ${progress}%`;
+                loadingBar.style.width = `${progress}%`;
+
+                if (loadedCount >= totalAssets) {
+                    setTimeout(() => {
+                        loaderInfo.style.opacity = '0';
+                        setTimeout(() => {
+                            loaderInfo.style.display = 'none';
+                            enterBtn.disabled = false;
+                            enterBtn.innerText = 'Enter the Magic ✨';
+                        }, 500);
+                    }, 500);
+                }
+            }
+
+            // Track images and videos
+            assets.forEach(src => {
+                if (src.endsWith('.mp4')) {
+                    const video = document.createElement('video');
+                    video.src = src;
+                    video.preload = 'auto';
+                    video.oncanplaythrough = updateProgress;
+                    video.onerror = updateProgress; // Continue on error
+                } else {
+                    const img = new Image();
+                    img.src = src;
+                    img.onload = updateProgress;
+                    img.onerror = updateProgress;
+                }
+            });
+
+            // Safety timeout: enable button after 10 seconds regardless of loading state
+            setTimeout(() => {
+                if (enterBtn.disabled) {
+                    loadingText.innerText = "Almost there...";
+                    enterBtn.disabled = false;
+                    enterBtn.innerText = 'Enter the Magic ✨';
+                    loaderInfo.style.display = 'none';
+                }
+            }, 10000);
+        });
+
         // Global Audio Handler
         function startTheMagic() {
             const bgMusic = document.getElementById('bgMusic');
@@ -1066,6 +1174,11 @@
             const countdownVid = document.getElementById('countdownVideo');
             const mainVid = document.getElementById('pashikaVideo');
             
+            // Explicitly play all background videos to ensure they start
+            document.querySelectorAll('.video-bg').forEach(v => {
+                v.play().catch(e => console.log("Bg video play failed", e));
+            });
+
             // Pre-load ALL critical videos instantly as soon as they enter
             countdownVid.load();
             if (mainVid) mainVid.load();
