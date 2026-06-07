@@ -753,7 +753,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: #000;
+            background: #ff75a0; /* Match the video balloon color */
             z-index: 100000;
             display: flex;
             justify-content: center;
@@ -774,6 +774,7 @@
             z-index: 1;
             opacity: 1;
             filter: brightness(0.6);
+            background: transparent;
         }
 
         .entry-content {
@@ -897,7 +898,7 @@
 
     <!-- Entry Interaction (Required for Instant Music) -->
     <div id="entryOverlay">
-        <video class="video-bg" autoplay muted loop playsinline poster="1.jpeg">
+        <video class="video-bg" autoplay muted loop playsinline preload="auto">
             <source src="vecteezy_valentine-s-day-background-with-red-and-gold-balloons_55010830.mp4" type="video/mp4">
         </video>
         <div class="entry-content">
@@ -945,7 +946,7 @@
 
     <!-- GALLERY PAGE (Screenshot 1 Theme) -->
     <section id="galleryPage" class="page hidden">
-        <video class="video-bg" autoplay muted loop playsinline poster="1.jpeg">
+        <video class="video-bg" autoplay muted loop playsinline preload="auto">
             <source src="vecteezy_valentine-s-day-background-with-red-and-gold-balloons_55010830.mp4" type="video/mp4">
         </video>
         <!-- Floating Elements -->
