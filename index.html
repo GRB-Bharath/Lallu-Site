@@ -1024,12 +1024,12 @@
 
     <!-- VIDEO PAGE -->
     <section id="videoPage" class="page">
-        <video class="video-bg" autoplay muted loop playsinline>
+        <video class="video-bg" autoplay muted loop playsinline preload="auto">
             <source src="vecteezy_valentine-s-day-background-with-red-and-gold-balloons_55010830.mp4" type="video/mp4">
         </video>
         
         <div class="video-container">
-            <video id="pashikaVideo" controls playsinline>
+            <video id="pashikaVideo" controls playsinline preload="auto">
                 <source src="Prashi birthday love.mp4" type="video/mp4">
             </video>
         </div>
@@ -1064,9 +1064,11 @@
             const overlay = document.getElementById('entryOverlay');
             const controls = document.querySelector('.music-controls');
             const countdownVid = document.getElementById('countdownVideo');
+            const mainVid = document.getElementById('pashikaVideo');
             
-            // Pre-load the countdown video as soon as they enter
+            // Pre-load ALL critical videos instantly as soon as they enter
             countdownVid.load();
+            if (mainVid) mainVid.load();
 
             // Play Audio
             bgMusic.play().then(() => {
