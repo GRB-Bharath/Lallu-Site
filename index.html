@@ -836,7 +836,7 @@
     </div>
 
     <!-- Background Music -->
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop autoplay>
         <source src="Tum Ho Toh Song  Saiyaara  Ahaan Panday, Aneet Padda  Vishal Mishra, Hansika Pareek  Raj Shekhar - YRF.mp3" type="audio/mpeg">
     </audio>
 
@@ -978,20 +978,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
+        // Global Audio Handler
+        const startAudio = () => {
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.play().then(() => {
+                document.getElementById('playPauseBtn').innerHTML = '<span>⏸</span>';
+                // Remove listeners once audio starts successfully
+                document.removeEventListener('click', startAudio);
+                document.removeEventListener('touchstart', startAudio);
+            }).catch(e => console.log("Still waiting for interaction..."));
+        };
+
+        // Add listeners for any user interaction to bypass browser blocks
+        document.addEventListener('click', startAudio);
+        document.addEventListener('touchstart', startAudio);
+
         // Start audio and countdown on page load
         window.addEventListener('load', () => {
             const bgMusic = document.getElementById('bgMusic');
             const btn = document.getElementById('mainButton');
             let timeLeft = 15;
 
-            // Attempt to play audio
+            // Immediate attempt
+            startAudio();
+
+            // Attempt to play audio periodically 
             const playAttempt = setInterval(() => {
+                if (!bgMusic.paused) {
+                    clearInterval(playAttempt);
+                    return;
+                }
                 bgMusic.play().then(() => {
                     clearInterval(playAttempt);
+                    document.getElementById('playPauseBtn').innerHTML = '<span>⏸</span>';
                 }).catch(e => {
-                    console.log("Waiting for user interaction to play audio...");
+                    // Fail silently, listeners will handle it
                 });
-            }, 500);
+            }, 1000);
 
             // Countdown Logic
             const timer = setInterval(() => {
